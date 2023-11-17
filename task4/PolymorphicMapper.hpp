@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <type_traits>
 
 
 template <class From, auto target>
@@ -14,6 +15,11 @@ struct Mapping {
     } else {
       return std::nullopt;
     }
+  }
+
+  template<typename Target>
+  static constexpr void check_target() {
+    static_assert(std::is_same_v<decltype(target), Target>);
   }
 
   static constexpr auto get_target() {
@@ -29,6 +35,7 @@ static std::optional<Target> helper(const Base&) {
 template <typename Base, typename Target, typename Head, typename... Tail>
 static std::optional<Target> helper(const Base& object) {
   if (auto get = Head::check_obj(object)) {
+    Head::template check_target<Target>();
     return Head::get_target();
   }
   return helper<Base, Target, Tail...>(object);
