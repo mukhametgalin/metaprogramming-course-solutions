@@ -45,8 +45,11 @@ private:
 
 };
 
-template <std::size_t extent>
-concept is_number = (extent == std::dynamic_extent);
+template <typename U>
+concept container = requires(U a) {
+  a.data();
+  a.size();
+};
 
 template
   < class T
@@ -67,8 +70,8 @@ public:
   Span(std::array<T, extent>& arr) : base(arr.data()) {}
 
   Span(T *data, std::size_t ex) : SpanBase<T, extent>(data, ex) {}
-  template<typename U>
-  Span(std::vector<U>& vec) : SpanBase<T, extent>(vec.data(), vec.size()) {}
+  template<container U> 
+  Span(U& vec) : SpanBase<T, extent>(vec.data(), vec.size()) {}
 
   template<typename It>
   requires std::random_access_iterator<It>
